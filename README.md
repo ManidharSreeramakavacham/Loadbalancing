@@ -1,1 +1,1 @@
-# LoadBalanccing the Servers with HAProxy
+# LoadBalancing the Servers with HAProxy
