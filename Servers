@@ -1,8 +1,0 @@
-[LoadBalancer]
-HAProxy
-
-
-[BackEnd Servers]
-Dev A
-Dev B
-Dev C
