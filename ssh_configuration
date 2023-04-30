@@ -1,0 +1,27 @@
+Host bastionNSO
+  Hostname 188.95.231.67
+  User ubuntu
+  IdentityFile ~/.ssh/id_rsa
+
+Host HAproxy
+  Hostname 103.57.74.98
+  User ubuntu
+  IdentityFile ~/.ssh/id_rsa
+
+Host devA
+  Hostname 10.0.1.22
+  User ubuntu
+  ProxyJump bastionNSO
+  IdentityFile ~/.ssh/id_rsa
+
+Host devB
+  Hostname 10.0.1.11
+  User ubuntu
+  ProxyJump bastionNSO
+  IdentityFile ~/.ssh/id_rsa
+
+Host devC
+  Hostname 10.0.1.21
+  User ubuntu
+  ProxyJump bastionNSO
+  IdentityFile ~/.ssh/id_rsa
