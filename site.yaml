@@ -1,0 +1,67 @@
+---
+ - hosts:  all
+   gather_facts:  yes
+
+ - name:  all
+   hosts:  all
+   become:  true
+
+   tasks:
+     - name:  pre-updates
+       update_cache:  yes
+       state:  latest
+
+     - name:  install ssh
+       apt:
+         - name:  openssh_server
+           state:  present
+
+ - hosts:  webservers
+   remote-user:  ubuntu
+
+   tasks 1:
+       - name:  install python3
+         apt:
+
+       - name:  python3
+         state:  present
+
+       - name:  install pip3
+         apt:
+           - name:  python3-pip
+             state:  present
+
+       - name:  install python3-venv
+         apt:
+            - name:  python3-pip
+              state:  present
+
+   tasks 2:
+       - name:  flask directory creation
+         file:
+            path:/home/ubuntu/flask_app
+            state:directory
+            owner:ubuntu
+            group:ubuntu
+
+       - name:  copy the flask code from git repo and save it in the file
+        copy:
+            src:/etc/flask-app/dev.py
+            dest:/home/ubuntu/flask_app/
+            owner:ubuntu
+            group:ubuntu
+
+       - name:  create VEnv
+         command:  python3 -m venv/home/ubuntu/flask_app/venv
+
+       - name:  activate VEnv
+         command:  source /home/ubuntu/flask_app/venv/bin.activate
+
+   tasks 3:
+       - name:  Install Python Flask in Virtual Environment
+         pip:
+           name:  Flask
+           virtualenv:  /home/ubuntu/flask_app/venv
+
+       - name:  Running Flask App
+         command:  python3 /home/ubuntu/flask-app/dev.py
