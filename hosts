@@ -1,6 +1,9 @@
- [HAproxy]  
+[HAproxy]  
 HAproxy  
- 
+
+[bastion]
+bastionNSO
+
 [webservers]  
 devA  
 devB  
