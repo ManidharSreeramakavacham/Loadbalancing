@@ -44,8 +44,8 @@
             owner:ubuntu
             group:ubuntu
 
-       - name:  copy the flask code from git repo and save it in the file
-        copy:
+       - name:  write git application2.py in the directory and copy that to des
+         copy:
             src:/etc/flask-app/dev.py
             dest:/home/ubuntu/flask_app/
             owner:ubuntu
