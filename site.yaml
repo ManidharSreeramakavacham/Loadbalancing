@@ -1,67 +1,86 @@
 ---
- - hosts:  all
-   gather_facts:  yes
+  - hosts: all
+    gather_facts: yes
+    become: true
 
- - name:  all
-   hosts:  all
-   become:  true
+  - hosts: HAproxy
+    become: true
+    tasks:
+      - name: Install HAproxy
+        apt:
+          name: haproxy
+          state: present
 
-   tasks:
-     - name:  pre-updates
-       update_cache:  yes
-       state:  latest
+      - name: Configure HAproxy
+        file:
+           src: haproxy.cfg
+           dest: /etc/haproxy/haproxy.cfg
+        notify: restart haproxy
 
-     - name:  install ssh
-       apt:
-         - name:  openssh_server
-           state:  present
+      - name: Start HAproxy
+        systemd:
+          name: haproxy
+          state: started
+          enabled: yes
 
- - hosts:  webservers
-   remote-user:  ubuntu
+    handlers:
+      - name: Restart HAproxy
+        service:
+           name: haproxy
+           state: restarted
 
-   tasks 1:
-       - name:  install python3
-         apt:
+  - hosts: webservers
+    become: true
+    tasks:
+    - name: update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
 
-       - name:  python3
-         state:  present
+    - name: install system packages
+      apt:
+        name:
+          - python3
+          - python3-pip
+          - python3-venv
+        state: present
+        
+   - name: create Flask directory
+     file:
+       path: /home/ubuntu/flask_app
+       state: directory
+       owner: ubuntu
+       group: ubuntu
 
-       - name:  install pip3
-         apt:
-           - name:  python3-pip
-             state:  present
+   - name: copy Flask app code
+     copy:
+       src: dev.py
+       dest: /home/ubuntu/flask_app/
+       owner: ubuntu
+       group: ubuntu
 
-       - name:  install python3-venv
-         apt:
-            - name:  python3-pip
-              state:  present
+   - name: create virtual environment
+     command: python3 -m venv /home/ubuntu/flask_app/venv
+     args:
+       chdir: /home/ubuntu/flask_app
+     register: venv_output
 
-   tasks 2:
-       - name:  flask directory creation
-         file:
-            path:/home/ubuntu/flask_app
-            state:directory
-            owner:ubuntu
-            group:ubuntu
+   - name: activate virtual environment
+     command: /home/ubuntu/flask_app/venv/bin/activate
+     args:
+       chdir: /home/ubuntu/flask_app
+     environment:
+       PATH: "{{ venv_output.stdout_lines[0] }}/bin:{{ ansible_env.PATH }}"
 
-       - name:  write git application2.py in the directory and copy that to des
-         copy:
-            src:/etc/flask-app/dev.py
-            dest:/home/ubuntu/flask_app/
-            owner:ubuntu
-            group:ubuntu
+   - name: install Flask in virtual environment
+     pip:
+       name: Flask
+       virtualenv: /home/ubuntu/flask_app/venv
+       state: present
 
-       - name:  create VEnv
-         command:  python3 -m venv/home/ubuntu/flask_app/venv
-
-       - name:  activate VEnv
-         command:  source /home/ubuntu/flask_app/venv/bin.activate
-
-   tasks 3:
-       - name:  Install Python Flask in Virtual Environment
-         pip:
-           name:  Flask
-           virtualenv:  /home/ubuntu/flask_app/venv
-
-       - name:  Running Flask App
-         command:  python3 /home/ubuntu/flask-app/dev.py
+   - name: start Flask app
+    command: python /home/ubuntu/flask_app/dev.py
+     args:
+       chdir: /home/ubuntu/flask_app
+     environment:
+      PATH: "{{ venv_output.stdout_lines[0] }}/bin:{{ ansible_env.PATH }}"
