@@ -18,8 +18,8 @@
         src: /path/to/local/haproxy.cfg
         dest: /etc/haproxy/haproxy.cfg
         mode: 0644
-        owner: root
-        group: root
+        owner: ubuntu
+        group: ubuntu
       notify: restart haproxy
 
   handlers:
