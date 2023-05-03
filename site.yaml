@@ -13,12 +13,12 @@
         name: haproxy
         state: present
 
-    - name: Configure HAP:roxy
-      file:
-        src: haproxy.cfg
-        dest: /etc/haproxy/haproxy.cfg
-      notify:
-        - restart haproxy
+    - name: Configure HAproxy
+      copy:
+         src: /haproxy.cfg
+         dest: /etc/haproxy/haproxy.cfg
+      notify: restart haproxy
+
 
   handlers:
     - name: restart haproxy
@@ -44,8 +44,8 @@
       apt:
         name: python3-pip
         state: present
-    
-    
+
+
     - name: install python3-venv
       apt:
         name: python3-venv
@@ -84,11 +84,11 @@
     - name: Copy Flask app file
       copy:
         src: dev.py
-        dest: /home/ubuntu/flask-app/venv/dev.py
+        dest: /home/ubuntu/flask-app/dev.py
+        mode: 0755
 
     - name: Run Flask app
       shell:
         cmd: nohup python3 /home/ubuntu/flask-app/venv/dev.py
       async: 5000
-      poll: 0
-    
+      poll: 0
