@@ -3,24 +3,23 @@
   gather_facts: yes
   become: true
 
-- name: Configure HAProxy Load Balancer
+
+- name: Configure HAProxy on Ubuntu
   hosts: HAproxy
-  become: yes
+  become: true
 
   tasks:
     - name: Install HAProxy
       apt:
         name: haproxy
-        state: latest
+        state: present
 
     - name: Configure HAProxy
       file:
-        src: /path/to/local/haproxy.cfg
+        src: haproxy.cfg
         dest: /etc/haproxy/haproxy.cfg
-        mode: 0644
-        owner: root
-        group: root
-      notify: restart haproxy
+      notify:
+        - restart haproxy
 
   handlers:
     - name: restart haproxy
