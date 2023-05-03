@@ -12,7 +12,7 @@
       apt:
         name: haproxy
         state: latest
-        
+
     - name: Configure HAProxy
       file:
         src: /path/to/local/haproxy.cfg
@@ -91,4 +91,4 @@
       shell:
         cmd: nohup python3 /home/ubuntu/flask-app/venv/dev.py
       async: 5000
-      poll: 0    
+      poll: 0
