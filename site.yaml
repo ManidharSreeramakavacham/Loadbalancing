@@ -15,15 +15,15 @@
 
     - name: Configure HAproxy
       copy:
-         src: /haproxy.cfg
+         src: /lb.cfg
          dest: /etc/haproxy/haproxy.cfg
       notify: restart haproxy
 
 
   handlers:
-    - name: restart haproxy
+    - name: restart HAproxy
       service:
-        name: haproxy
+        name: HAproxy
         state: restarted
 
 
