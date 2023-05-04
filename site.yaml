@@ -22,7 +22,7 @@
   handlers:
     - name: restart haproxy
       service:
-        name: haproxy
+        name: HAproxy
         state: restarted
 
 
