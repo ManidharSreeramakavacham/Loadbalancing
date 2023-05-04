@@ -15,7 +15,7 @@
 
     - name: Configure HAProxy
       file:
-        src: /lb.cfg.j2
+        src: lb.cfg.j2
         dest: /etc/haproxy/haproxy.cfg
       notify: restart haproxy
 
@@ -23,7 +23,7 @@
     - name: restart haproxy
       service:
         name: HAproxy
-        state: restarted
+        command: systemctl restart HAproxy
 
 
 - name: Configure Flask webserver
