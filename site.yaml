@@ -15,11 +15,8 @@
 
     - name: Configure HAProxy
       file:
-        src: /haproxy.cfg
+        src: /lb.cfg.j2
         dest: /etc/haproxy/haproxy.cfg
-        mode: 0644
-        owner: root
-        group: root
       notify: restart haproxy
 
   handlers:
