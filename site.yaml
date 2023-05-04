@@ -2,7 +2,25 @@
 - hosts: all
   gather_facts: yes
   become: true
-  
+
+- name: Configure HAProxy
+  hosts: HAproxy
+  become: yes
+  tasks:
+    - name: Install HAProxy
+      apt:
+        name: haproxy
+        state: present
+
+    - name: Configure HAProxy
+      template:
+        src: haproxy.cfg
+        dest: /etc/haproxy/haproxy.cfg
+
+    - name: restart HAproxy
+      become: yes
+      command: systemctl restart haproxy
+
 - name: Configure Flask webserver
   hosts: webservers
   become: true
@@ -34,6 +52,9 @@
     - name: Change directory to flask-app
       shell: cd /home/ubuntu/flask-app
 
+    - name: Installing Flask
+      shell: pip3 install Flask
+
     - name: Creating virtual environment
       file:
         path: /home/ubuntu/flask-app/venv
@@ -53,9 +74,6 @@
         mode: '0755'
         recurse: yes
 
-    - name: Installing flask
-      shell: pip3 install Flask
-
     - name: Copy Flask app file
       copy:
         src: app.py
@@ -65,19 +83,3 @@
       command: flask run -h 0.0.0.0 -p 5000
       async: 5000
       poll: 0
-  
-- name: Configure HAProxy
-  hosts: HAproxy
-  become: yes 
-  tasks:
-    - name: Install HAProxy
-      apt:
-      name: haproxy
-      state: present
-    - name: Configure HAProxy
-      template:
-             src: haproxy.cfg
-             dest: /etc/haproxy/haproxy.cfg
-    - name: restart HAproxy
-      become: yes
-      command: systemctl restart haproxy
