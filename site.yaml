@@ -19,7 +19,7 @@
 
     - name: restart HAproxy
       become: yes
-      command: systemctl restart haproxy
+      command: systemctl status haproxy
 
 - name: Configure Flask webserver
   hosts: webservers
