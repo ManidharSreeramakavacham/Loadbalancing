@@ -3,35 +3,6 @@
   gather_facts: yes
   become: true
 
-- name: Configure HAProxy
-  hosts: HAproxy
-  become: yes
-  vars:
-    backendnodes:
-      - name: devA
-        ip: 89.42.141.250
-        port: 5000
-      - name: devB
-        ip: 89.42.141.47
-        port: 5000
-      - name: devC
-        ip: 89.42.141.167
-        port: 5000
-  tasks:
-    - name: Install HAProxy
-      apt:
-        name: haproxy
-        state: present
-
-    - name: Configure HAProxy
-      template:
-        src: haproxy.cfg
-        dest: /etc/haproxy/haproxy.cfg
-
-    - name: restart HAproxy
-      become: yes
-      command: systemctl restart haproxy
-
 - name: Configure Flask webserver
   hosts: webservers
   become: true
@@ -94,3 +65,21 @@
       command: flask run -h 0.0.0.0 -p 5000
       async: 5000
       poll: 0
+  
+   - name: Configure HAProxy
+     hosts: HAproxy
+     become: yes 
+     tasks:
+       - name: Install HAProxy
+         apt:
+         name: haproxy
+         state: present
+
+       - name: Configure HAProxy
+         template:
+                src: haproxy.cfg
+                dest: /etc/haproxy/haproxy.cfg
+
+       - name: restart HAproxy
+         become: yes
+         command: systemctl restart haproxy
