@@ -66,20 +66,19 @@
       async: 5000
       poll: 0
   
-   - name: Configure HAProxy
-     hosts: HAproxy
-     become: yes 
-     tasks:
-       - name: Install HAProxy
-         apt:
-         name: haproxy
-         state: present
+ - name: Configure HAProxy
+   hosts: HAproxy
+   become: yes 
+   tasks:
+     - name: Install HAProxy
+       apt:
+       name: haproxy
+       state: present
 
-       - name: Configure HAProxy
-         template:
-                src: haproxy.cfg
-                dest: /etc/haproxy/haproxy.cfg
-
-       - name: restart HAproxy
-         become: yes
-         command: systemctl restart haproxy
+     - name: Configure HAProxy
+       template:
+              src: haproxy.cfg
+              dest: /etc/haproxy/haproxy.cfg
+      - name: restart HAproxy
+       become: yes
+       command: systemctl restart haproxy
