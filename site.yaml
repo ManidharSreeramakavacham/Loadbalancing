@@ -3,27 +3,29 @@
   gather_facts: yes
   become: true
 
-- name: Configure HAProxy on Ubuntu
+- name: Configure HAProxy Load Balancer
   hosts: HAproxy
-  become: true
+  become: yes
 
   tasks:
     - name: Install HAProxy
       apt:
         name: haproxy
-        state: present
+        state: latest
 
-    - name: Configure HAproxy
-      copy:
-         src: /lb.cfg.j2
-         dest: /etc/haproxy/haproxy.cfg
+    - name: Configure HAProxy
+      file:
+        src: /haproxy.cfg
+        dest: /etc/haproxy/haproxy.cfg
+        mode: 0644
+        owner: root
+        group: root
       notify: restart haproxy
 
-
   handlers:
-    - name: restart HAproxy
+    - name: restart haproxy
       service:
-        name: HAproxy
+        name: haproxy
         state: restarted
 
 
@@ -44,7 +46,6 @@
       apt:
         name: python3-pip
         state: present
-
 
     - name: install python3-venv
       apt:
@@ -84,11 +85,10 @@
     - name: Copy Flask app file
       copy:
         src: dev.py
-        dest: /home/ubuntu/flask-app/dev.py
-        mode: 0755
+        dest: /home/ubuntu/flask-app/venv/dev.py
 
     - name: Run Flask app
       shell:
         cmd: nohup python3 /home/ubuntu/flask-app/venv/dev.py
       async: 5000
-      poll: 0
+      poll: 0
