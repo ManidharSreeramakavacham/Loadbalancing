@@ -85,7 +85,6 @@
         dest: /home/ubuntu/flask-app/venv/dev.py
 
     - name: Run Flask app
-      shell:
-        cmd: nohup python3 /home/ubuntu/flask-app/venv/dev.py
+      command: flask run -h 0.0.0.0 -p 5000
       async: 5000
       poll: 0
