@@ -21,7 +21,7 @@
        become: true
        systemd:
           name: haproxy
-          state: restarted
+          state: started
 
 
  - hosts: webservers
