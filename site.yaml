@@ -1,84 +1,63 @@
 ---
- - hosts: all
-   gather_facts: yes
-   become: true
+  - hosts: all
+    gather_facts: yes
+    become: true
 
- - hosts: HAproxy
-   become: yes
-   tasks:
+  - hosts: HAproxy
+    become: yes
+    tasks:
+       - name: updating
+         apt:
+           update_cache: yes
 
-     - name: installing haproxy
-       apt:
-         name: haproxy
-         state: present
+       - name: installing haproxy
+         apt:
+           name: haproxy
+           state: present
 
-     - name: configuring HAproxy
-       template:
-               src: haproxy.cfg.j2
-               dest: /etc/haproxy/haproxy.cfg
+       - name: configuring HAproxy
+         template:
+                 src: haproxy.cfg.j2
+                 dest: /etc/haproxy/haproxy.cfg
 
-     - name: Restart haproxy
-       become: true
-       systemd:
-          name: haproxy
-          state: started
+       - name: Restart haproxy
+         become: true
+         systemd:
+            name: haproxy
+            state: started
 
+  - hosts: webservers
+    become: true
+    become_method: sudo
+    gather_facts: true
+    tasks:
 
- - hosts: webservers
-   remote_user: ubuntu
+       - name: updating
+         apt:
+           update_cache: true
 
-   tasks:
-     - name: installing python
-       apt:
-         name: python3
-         state: present
+       - name: Deploying pip3
+         apt:
+           name: python3-pip
+           state: latest
+           update_cache: true
 
-     - name: installing pip3
-       apt:
-         name: python3-pip
-         state: present
+       - name: Deploying flask
+         pip:
+           executable: pip3
+           name: flask
+           state: latest
 
-     - name: installing python3-venv
-       apt:
-         name: python3-venv
-         state: present
+       - name: Deploying gunicorn
+         apt:
+           name: gunicorn
 
-     - name: flask directory creation
-       file:
-            path: /home/ubuntu/flask-app
-            state: directory
+       - name: Copying App.py
+         copy:
+            src: /$PWD/app.py
+            dest: /home/ubuntu/app.py
+            owner: ubuntu
+            mode: '0644'
 
-     - name: changing the directory
-       shell: cd /home/ubuntu/flask-app
-
-     - name: deploying Flask
-       shell: pip3 install Flask
-
-     - name: Creating virtual environment
-       file:
-         path: /home/ubuntu/flask-app/venv
-         state: directory
-         mode: '0755'
-
-     - name: Create VirtualEnv
-       pip:
-         name: Flask
-         virtualenv: /home/ubuntu/flask-app/venv
-
-     - name: permission check
-       become: yes
-       become_user: root
-       file:
-         path: /home/ubuntu/flask-app/venv
-         mode: '0755'
-         recurse: yes
-
-     - name: Copy Flask app file
-       copy:
-         src: app.py
-         dest: /home/ubuntu/flask-app/venv/apppy
-
-     - name: Run Flask app
-       command: flask run -h 0.0.0.0 -p 5000
-       async: 5000
-       poll: 0
+       - name: Run Flask application
+         shell: gunicorn -w 2 -D -b 0.0.0.0:5000 app:app
