@@ -6,47 +6,67 @@
     tasks:
       - name: apt update
         apt:
+          update_cache: true
+
+
+  - name: installing flask app
+    hosts: webservers
+    become: yes
+    become_method: sudo
+    tasks:
+      - name: update apt cache
+        apt:
           update_cache: yes
 
-  - hosts: webservers
+      - name: deploying python3-pip
+        apt:
+          name: python3-pip
+          state: latest
+          update_cache: yes
+
+      - name: deploying flask
+        become: yes
+        pip:
+          executable: pip3
+          name: flask
+          state: latest
+
+      - name: Installing flask services
+        apt:
+          name: gunicorn
+
+      - name: copying flask file
+        copy:
+          src: /$PWD/app.py
+          dest: /home/ubuntu/app.py
+          owner: ubuntu
+          mode: '0644'
+
+      - name: running Flask app
+        shell: gunicorn -w 2 -D -b 0.0.0.0:5000 app:app
+
+
+
+  - hosts: HAproxy
     become: true
-    become_method: sudo
-    gather_facts: true
+
     tasks:
 
-       - name: updating
-         apt:
-           update_cache: true
+      - name: apt update
+        apt:
+          update_cache: yes
 
-       - name: Deploying pip3
-         apt:
-           name: python3-pip
-           state: latest
-           update_cache: true
+      - name: Installing HAPROXY
+        apt:
+          name: haproxy
+          state: present
 
-       - name: Deploying flask
-         pip:
-           executable: pip3
-           name: flask
-           state: latest
+      - name: Configure haproxy
+        template:
+          src: /$PWD/haproxy.cfg.j2
+          dest: /etc/haproxy/haproxy.cfg
 
-       - name: Deploying gunicorn
-         apt:
-           name: gunicorn
-
-       - name: Copying App.py
-         copy:
-            src: /$PWD/app.py
-            dest: /home/ubuntu/app.py
-            owner: ubuntu
-            mode: '0644'
-
-       - name: Run Flask application
-         shell: gunicorn -w 2 -D -b 0.0.0.0:5000 app:app
-
-  - hosts: Haproxy
-       - name: Restart haproxy
-         become: true
-         service:
-            name: haproxy
-            state: started
+      - name: Restart haproxy
+        service:
+          name: haproxy
+          state: restarted
