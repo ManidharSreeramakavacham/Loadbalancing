@@ -8,7 +8,7 @@
         apt:
           update_cache: true
           
-   - hosts: HAproxy
+  - hosts: HAproxy
     become: true
 
     tasks:
