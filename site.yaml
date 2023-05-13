@@ -56,7 +56,29 @@
         src: /$PWD/haproxy.cfg.j2
         dest: /etc/haproxy/haproxy.cfg
  
-    - name: Restart haproxy
-      service:
+    - name: Check status of haproxy service
+      systemd:
+        name: haproxy
+        state: started
+        enabled: true
+      register: haproxy_status
+
+    - name: Start haproxy service
+      systemd:
+        name: haproxy
+        state: started
+        enabled: true
+
+    - name: Check status of haproxy service using command
+      command: systemctl status haproxy.service
+      register: haproxy_status
+
+    - name: Check system log for haproxy errors
+      shell: journalctl -xe | grep haproxy
+      register: haproxy_log
+      ignore_errors: true
+
+    - name: Restart haproxy service
+      systemd:
         name: haproxy
         state: restarted
