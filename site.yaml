@@ -67,6 +67,6 @@
           dest: /etc/haproxy/haproxy.cfg
 
       - name: Restart haproxy
-        service:
+        systemctl:
           name: haproxy
           state: restarted
