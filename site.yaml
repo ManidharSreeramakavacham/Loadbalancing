@@ -43,23 +43,6 @@
 
        - name: Run Flask application
          shell: gunicorn -w 2 -D -b 0.0.0.0:8080 app:app
-  - hosts: HAproxy
-    become: yes
-    become_method: sudo
-    tasks:
-       - name: updating
-         apt:
-           update_cache: yes
-
-       - name: installing haproxy
-         apt:
-           name: haproxy
-           state: present
-
-       - name: configuring HAproxy
-         template:
-                 src: haproxy.cfg.j2
-                 dest: /etc/haproxy/haproxy.cfg
 
        - name: Restart haproxy
          become: true
