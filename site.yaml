@@ -4,7 +4,7 @@
   become_method: sudo
   gather_facts: true
   tasks:
-    - name: apt update
+    - name: updating
       apt:
         update_cache: true
 
@@ -42,7 +42,7 @@
 
   tasks:
 
-    - name: apt update
+    - name: updating
       apt:
         update_cache: yes
 
