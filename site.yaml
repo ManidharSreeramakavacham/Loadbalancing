@@ -7,7 +7,30 @@
       - name: apt update
         apt:
           update_cache: true
+          
+   - hosts: HAproxy
+    become: true
 
+    tasks:
+
+      - name: apt update
+        apt:
+          update_cache: yes
+
+      - name: Installing HAPROXY
+        apt:
+          name: haproxy
+          state: present
+
+      - name: Configure haproxy
+        template:
+          src: /$PWD/haproxy.cfg.j2
+          dest: /etc/haproxy/haproxy.cfg
+
+      - name: Restart haproxy
+        service:
+            name: haproxy
+            state: restarted
 
   - name: installing flask app
     hosts: webservers
@@ -44,29 +67,3 @@
 
       - name: running Flask app
         shell: gunicorn -w 2 -D -b 0.0.0.0:5000 app:app
-
-
-
-  - hosts: HAproxy
-    become: true
-
-    tasks:
-
-      - name: apt update
-        apt:
-          update_cache: yes
-
-      - name: Installing HAPROXY
-        apt:
-          name: haproxy
-          state: present
-
-      - name: Configure haproxy
-        template:
-          src: /$PWD/haproxy.cfg.j2
-          dest: /etc/haproxy/haproxy.cfg
-
-      - name: Restart haproxy
-        systemctl:
-          name: haproxy
-          state: restarted
