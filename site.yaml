@@ -44,6 +44,7 @@
        - name: Run Flask application
          shell: gunicorn -w 2 -D -b 0.0.0.0:5000 app:app
 
+  - hosts: Haproxy
        - name: Restart haproxy
          become: true
          service:
